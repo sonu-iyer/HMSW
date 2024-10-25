@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/yourusername/HospitalManagementSystem.git', branch: 'main'
+                git url: 'https://github.com/sonu-iyer/HMSW.git', branch: 'main'
             }
         }
         stage('Build Docker Image') {
