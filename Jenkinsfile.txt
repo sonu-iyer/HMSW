@@ -1,35 +1,64 @@
 pipeline {
     agent any
+
+    environment {
+        IMAGE_NAME = 'hmsw-image'         // Docker image name
+        CONTAINER_NAME = 'hmsw-container'  // Docker container name
+        REPO_URL = 'https://github.com/sonu-iyer/HMSW.git' // GitHub repository URL
+    }
+
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/sonu-iyer/HMSW.git', branch: 'main'
+                // Clone the repository from GitHub
+                git url: "${REPO_URL}", branch: 'main'
             }
         }
+        
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    docker.build('hospital-management-system')
+                    // Build the Docker image using the Dockerfile
+                    docker.build("${IMAGE_NAME}")
                 }
             }
         }
+
         stage('Run Tests') {
             steps {
-                // Here you can add commands to run tests, if applicable
-                echo 'No tests defined for static site.'
+                script {
+                    // Run tests within the Docker container
+                    // Change 'npm test' to your actual test command
+                    sh 'docker run --rm ${IMAGE_NAME} npm test'
+                }
             }
         }
+
         stage('Deploy') {
             steps {
-                // Stop and remove any existing container
-                sh '''
-                docker stop current-container || true
-                docker rm current-container || true
-                '''
-                // Run a new container with the latest image
-                sh 'docker run -d --name current-container -p 80:80 hospital-management-system'
+                script {
+                    // Stop and remove any existing container with the same name
+                    sh '''
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
+                    '''
+                    // Run a new container from the built image
+                    sh 'docker run -d --name ${CONTAINER_NAME} -p 80:80 ${IMAGE_NAME}'
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            // Clean up unused Docker resources after the pipeline run
+            sh 'docker system prune -f'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs for details.'
         }
     }
 }
