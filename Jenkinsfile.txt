@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/yourusername/HospitalManagementSystem.git', branch: 'main'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    docker.build('hospital-management-system')
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                // Here you can add commands to run tests, if applicable
+                echo 'No tests defined for static site.'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Stop and remove any existing container
+                sh '''
+                docker stop current-container || true
+                docker rm current-container || true
+                '''
+                // Run a new container with the latest image
+                sh 'docker run -d --name current-container -p 80:80 hospital-management-system'
+            }
+        }
+    }
+}

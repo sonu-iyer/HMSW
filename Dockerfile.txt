@@ -1,0 +1,10 @@
+# Use an official Nginx image as a base
+FROM nginx:alpine
+
+# Copy the HTML, CSS, and image files into the Nginx web directory
+COPY . /usr/share/nginx/html
+
+# Expose port 80 to allow traffic
+EXPOSE 80
+
+# The default command for the Nginx image is already set to run Nginx
