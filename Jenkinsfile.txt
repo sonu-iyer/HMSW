@@ -18,8 +18,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image using the Dockerfile
-                    docker.build("${IMAGE_NAME}")
+                    // Build the Docker image using the custom Dockerfile name
+                    docker.build("${IMAGE_NAME}", '-f Dockerfile.txt .')
                 }
             }
         }
@@ -27,7 +27,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Run tests within the Docker container
+                    // Run tests inside the Docker container
                     // Change 'npm test' to your actual test command
                     sh 'docker run --rm ${IMAGE_NAME} npm test'
                 }
@@ -62,3 +62,4 @@ pipeline {
         }
     }
 }
+*-
